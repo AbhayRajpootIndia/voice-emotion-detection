@@ -46,11 +46,10 @@ def get_prediction_proba(docx):
 
 
 def main():
-    st.title("Text Emotion Detection")
-    st.subheader("Detect Emotions In Text")
+    st.title("Voice Emotion Detection")
+    st.subheader("Detect Emotions In Voice")
 
     audio = audiorecorder("Click to record", "Click to stop recording")
-    print(audio)
     wav_audio_data = audio.export().read()
 
     if wav_audio_data is not None:
@@ -85,10 +84,6 @@ def main():
 
             fig = alt.Chart(proba_df_clean).mark_bar().encode(x='emotions', y='probability', color='emotions')
             st.altair_chart(fig, use_container_width=True)
-
-
-
-
 
 
 if __name__ == '__main__':

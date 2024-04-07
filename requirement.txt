@@ -1,0 +1,14 @@
+git+https://github.com/openai/whisper.git 
+streamlit
+pandas
+numpy
+altair
+whisper
+os
+audiorecorder
+joblib
+scikit-learn
+neattext
+pandas
+numpy
+seaborn

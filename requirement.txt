@@ -1,14 +1,4 @@
 git+https://github.com/openai/whisper.git 
-streamlit
-pandas
-numpy
-altair
-whisper
-os
-audiorecorder
+Flask
 joblib
-scikit-learn
-neattext
-pandas
-numpy
-seaborn
+transformers

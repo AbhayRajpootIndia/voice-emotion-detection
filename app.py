@@ -1,20 +1,18 @@
 import streamlit as st
-
-import pandas as pd
 import numpy as np
-import altair as alt
 import whisper
 import os
 from audiorecorder import audiorecorder
+from transformers import pipeline
 
-import joblib
+sentiment_analysis = pipeline("sentiment-analysis", framework="pt", model="SamLowe/roberta-base-go_emotions")
 
 whisperModel = whisper.load_model("base")
 
-pipe_lr = joblib.load(open("model/text_emotion.pkl", "rb"))
-
-emotions_emoji_dict = {"anger": "😠", "disgust": "🤮", "fear": "😨😱", "happy": "🤗", "joy": "😂", "neutral": "😐", "sad": "😔",
-                       "sadness": "😔", "shame": "😳", "surprise": "😮"}
+def analyze_sentiment(text):
+    results = sentiment_analysis(text)
+    sentiment_results = {result['label']: result['score'] for result in results}
+    return sentiment_results
 
 def inference(audio):
     with open ('tempSoundFile.mp3', 'wb') as myFile:
@@ -33,17 +31,20 @@ def inference(audio):
 
     os.remove("tempSoundFile.mp3")
 
-    return result.text
+    return result.text, lang
 
-def predict_emotions(docx):
-    results = pipe_lr.predict([docx])
-    return results[0]
+def extract_emotion(wav_audio_data):
+    raw_text2, lang = inference(wav_audio_data)
+    sentimentData = analyze_sentiment(raw_text2)
 
+    sentimentname = ''
+    sentimentval = ''
 
-def get_prediction_proba(docx):
-    results = pipe_lr.predict_proba([docx])
-    return results
+    for key, val in sentimentData.items():
+        sentimentname = key
+        sentimentval = val
 
+    return raw_text2, sentimentname, sentimentval, lang
 
 def main():
     st.title("Voice Emotion Detection")
@@ -58,32 +59,15 @@ def main():
     submit_text = st.button(label='Submit')
 
     if submit_text:
-        col1, col2 = st.columns(2)
+        raw_text2, prediction, probability, lang = extract_emotion(wav_audio_data)
 
-        raw_text2 = inference(wav_audio_data)
+        st.success("Original Text")
+        st.write(raw_text2)
 
-        prediction = predict_emotions(raw_text2)
-        probability = get_prediction_proba(raw_text2)
+        st.success("Prediction")
+        st.write("{}".format(prediction))
+        st.write("Confidence: {}".format(np.max(probability)))
 
-        with col1:
-            st.success("Original Text")
-            st.write(raw_text2)
-
-            st.success("Prediction")
-            emoji_icon = emotions_emoji_dict[prediction]
-            st.write("{}:{}".format(prediction, emoji_icon))
-            st.write("Confidence:{}".format(np.max(probability)))
-
-        with col2:
-            st.success("Prediction Probability")
-            #st.write(probability)
-            proba_df = pd.DataFrame(probability, columns=pipe_lr.classes_)
-            #st.write(proba_df.T)
-            proba_df_clean = proba_df.T.reset_index()
-            proba_df_clean.columns = ["emotions", "probability"]
-
-            fig = alt.Chart(proba_df_clean).mark_bar().encode(x='emotions', y='probability', color='emotions')
-            st.altair_chart(fig, use_container_width=True)
 
 
 if __name__ == '__main__':

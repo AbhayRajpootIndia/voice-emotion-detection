@@ -3,3 +3,4 @@ Flask
 joblib
 transformers
 openai-whisper
+audiorecorder

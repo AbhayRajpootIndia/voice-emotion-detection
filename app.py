@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import whisper
 import os
 from audiorecorder import audiorecorder

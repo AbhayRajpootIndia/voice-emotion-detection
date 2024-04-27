@@ -1,6 +1,7 @@
 import streamlit as st
 import whisper
 import os
+import numpy as np
 from audiorecorder import audiorecorder
 from transformers import pipeline
 

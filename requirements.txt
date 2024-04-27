@@ -3,3 +3,4 @@ Flask
 joblib
 transformers
 audiorecorder
+numpy
